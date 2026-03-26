@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Thông tin cá nhân</title>
+    <style>
+        body { font-family: Arial; margin: 40px; }
+        table { border-collapse: collapse; width: 50%; }
+        th, td { border: 1px solid #ccc; padding: 10px; }
+        th { background: #4CAF50; color: white; }
+    </style>
+</head>
+<body>
+    <h1>Thông tin sinh viên</h1>
+    <table>
+        <tr>
+            <th>Họ và tên</th>
+            <th>MSSV</th>
+        </tr>
+        <tr th:each="s : ${students}">
+            <td th:text="${s.hoTen}"></td>
+            <td th:text="${s.maSoSinhVien}"></td>
+        </tr>
+    </table>
+    <p><em>Dữ liệu được lấy từ H2 Database</em></p>
+</body>
+</html>
