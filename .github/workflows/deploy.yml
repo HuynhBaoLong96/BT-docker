@@ -21,7 +21,7 @@ jobs:
       - name: Build Docker image
         run: docker build -t ${{ secrets.DOCKER_USERNAME }}/student-app:${{ github.sha }} .
       - name: Push Docker image
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/student-app:${{ github.sha }}
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/student-app:${{ github.sha }} .
       - name: Triển khai lên DevOps Classroom
         run: |
           REPO="alongdocker69/student"
