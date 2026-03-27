@@ -35,13 +35,15 @@ jobs:
         run: |
           REPO="alongdocker69/student-app"
           CONTAINER_PORT=80
-          RESPONSE=$(curl -sS -w "\n%{http_code}" --max-time 60 -X POST "${{ secrets.DEPLOY_URL }}?repo=$REPO&tag=latest&slot=6&container_port=$CONTAINER_PORT&strict_container_port=0")
+          RESPONSE=$(curl -sS -w "\n%{http_code}" --max-time 60 -X POST \
+            "${{ secrets.DEPLOY_URL }}?repo=$REPO&tag=latest&slot=6&container_port=$CONTAINER_PORT&strict_container_port=0" \
+            || echo "\n000") 
           BODY=$(echo "$RESPONSE" | head -n -1)
           CODE=$(echo "$RESPONSE" | tail -n1)
           echo "Webhook HTTP: $CODE"
 
           if [ "$CODE" = "524" ] || [ "$CODE" = "000" ] || [ "$CODE" = "28" ]; then
-            echo "Warning: Server timeout ($CODE) — bỏ qua, deploy có thể đã chạy phía server."
+            echo "Warning: Server timeout ($CODE) — bỏ qua."
             exit 0
           fi
 
