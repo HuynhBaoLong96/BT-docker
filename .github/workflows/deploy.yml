@@ -36,7 +36,7 @@ jobs:
           REPO="alongdocker69/student-app"
           CONTAINER_PORT=80
           RESPONSE=$(curl -sS -w "\n%{http_code}" --max-time 60 -X POST \
-            "${{ secrets.DEPLOY_URL }}?repo=$REPO&tag=latest&slot=6&container_port=$CONTAINER_PORT&strict_container_port=0" \
+            "${{ secrets.DEPLOY_URL }}?repo=$REPO&tag=latest&slot=6&container_port=$CONTAINER_PORT&strict_container_port=0&registry_username=${{ secrets.DOCKER_USERNAME }}&registry_password=${{ secrets.DOCKER_PASSWORD }}" \
             || echo "\n000")
           BODY=$(echo "$RESPONSE" | head -n -1)
           CODE=$(echo "$RESPONSE" | tail -n1)
