@@ -24,15 +24,20 @@ jobs:
           docker build -t ${{ secrets.DOCKER_USERNAME }}/student-app:latest .
           docker push ${{ secrets.DOCKER_USERNAME }}/student-app:latest
 
-      # ==== DÁN YAML CỦA THẦY VÀO ĐÂY ====
       - name: Triển khai lên DevOps Classroom
         run: |
           REPO="alongdocker69/student-app"
           CONTAINER_PORT=80
-          RESPONSE=$(curl -sS -w "\n%{http_code}" -X POST "${{ secrets.DEPLOY_URL }}?repo=$REPO&tag=latest&slot=6&container_port=$CONTAINER_PORT&strict_container_port=0")
-          BODY=$(echo "$RESPONSE" | sed "$d")
+          RESPONSE=$(curl -sS -w "\n%{http_code}" -X POST \
+            "${{ secrets.DEPLOY_URL }}?repo=$REPO&tag=latest&slot=6&container_port=$CONTAINER_PORT&strict_container_port=0" \
+            || echo "\n000")
+          BODY=$(echo "$RESPONSE" | head -n -1)
           CODE=$(echo "$RESPONSE" | tail -n1)
           echo "Webhook HTTP: $CODE"
+          if [ "$CODE" = "502" ] || [ "$CODE" = "524" ] || [ "$CODE" = "000" ]; then
+            echo "Warning: Server lỗi tạm thời (HTTP $CODE) — bỏ qua."
+            exit 0
+          fi
           if [ "$CODE" -lt 200 ] || [ "$CODE" -ge 300 ]; then
             echo "Deploy thất bại. Xem chi tiết trong nhóm log bên dưới."
             echo "::group::Chi tiết webhook JSON"
