@@ -20,6 +20,8 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}      
       - name: Build Docker image
         run: docker build -t ${{ secrets.DOCKER_USERNAME }}/student-app:${{ github.sha }} .
+      - name: Push Docker image
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/student-app:${{ github.sha }}
       - name: Triển khai lên DevOps Classroom
         run: |
           REPO="alongdocker69/student-app"
@@ -39,6 +41,3 @@ jobs:
           echo "::group::Chi tiết webhook JSON"
           echo "$BODY" | python3 -m json.tool 2>/dev/null || echo "$BODY"
           echo "::endgroup::"
-
-      - name: Push Docker image
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/student-app:${{ github.sha }}
