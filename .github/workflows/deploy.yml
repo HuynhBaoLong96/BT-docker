@@ -19,42 +19,27 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build Docker image
-        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/student-app:${{ github.sha }} .
+      - name: Build and push Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/student-app:latest .
+          docker push ${{ secrets.DOCKER_USERNAME }}/student-app:latest
 
-      - name: Tag as latest
-        run: docker tag ${{ secrets.DOCKER_USERNAME }}/student-app:${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/student-app:latest
-
-      - name: Push sha tag
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/student-app:${{ github.sha }}
-
-      - name: Push latest tag
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/student-app:latest
-
+      # ==== DÁN YAML CỦA THẦY VÀO ĐÂY ====
       - name: Triển khai lên DevOps Classroom
         run: |
           REPO="alongdocker69/student-app"
           CONTAINER_PORT=80
-          RESPONSE=$(curl -sS -w "\n%{http_code}" --max-time 60 -X POST \
-            "${{ secrets.DEPLOY_URL }}?repo=$REPO&tag=latest&slot=6&container_port=$CONTAINER_PORT&strict_container_port=0&registry_username=${{ secrets.DOCKER_USERNAME }}&registry_password=${{ secrets.DOCKER_PASSWORD }}" \
-            || echo "\n000")
-          BODY=$(echo "$RESPONSE" | head -n -1)
+          RESPONSE=$(curl -sS -w "\n%{http_code}" -X POST "${{ secrets.DEPLOY_URL }}?repo=$REPO&tag=latest&slot=6&container_port=$CONTAINER_PORT&strict_container_port=0")
+          BODY=$(echo "$RESPONSE" | sed "$d")
           CODE=$(echo "$RESPONSE" | tail -n1)
           echo "Webhook HTTP: $CODE"
-
-          if [ "$CODE" = "502" ] || [ "$CODE" = "524" ] || [ "$CODE" = "000" ]; then
-            echo "Warning: Server chưa sẵn sàng (HTTP $CODE) — bỏ qua."
-            exit 0
-          fi
-
           if [ "$CODE" -lt 200 ] || [ "$CODE" -ge 300 ]; then
-            echo "Deploy thất bại (HTTP $CODE)."
+            echo "Deploy thất bại. Xem chi tiết trong nhóm log bên dưới."
             echo "::group::Chi tiết webhook JSON"
             echo "$BODY" | python3 -m json.tool 2>/dev/null || echo "$BODY"
             echo "::endgroup::"
             exit 1
           fi
-
           echo "Deploy thành công."
           echo "::group::Chi tiết webhook JSON"
           echo "$BODY" | python3 -m json.tool 2>/dev/null || echo "$BODY"
