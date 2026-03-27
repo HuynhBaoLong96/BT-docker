@@ -43,7 +43,7 @@ jobs:
           echo "Webhook HTTP: $CODE"
 
           if [ "$CODE" = "502" ] || [ "$CODE" = "524" ] || [ "$CODE" = "000" ]; then
-            echo "Warning: Server chưa sẵn sàng (HTTP $CODE) — bỏ qua, pipeline vẫn xanh."
+            echo "Warning: Server chưa sẵn sàng (HTTP $CODE) — bỏ qua."
             exit 0
           fi
 
